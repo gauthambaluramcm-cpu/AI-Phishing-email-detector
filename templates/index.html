@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PhishGuard AI — Phishing Email Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="brand-icon">🛡️</span>
+            <span class="brand-name">PhishGuard <span class="brand-ai">AI</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link active">Home</a>
+            <a href="/analyze" class="nav-link">Analyze</a>
+            <a href="/history" class="nav-link">History</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-bg-grid"></div>
+        <div class="hero-content">
+            <div class="hero-badge">🔍 Powered by Gemini 2.5 Flash + VirusTotal</div>
+            <h1 class="hero-title">
+                Detect Phishing Emails<br />
+                <span class="hero-highlight">Before They Detect You</span>
+            </h1>
+            <p class="hero-subtitle">
+                Paste any suspicious email or upload a .eml file. Our AI analyzes it in seconds —
+                flagging red flags, scanning URLs, and telling you exactly what to do.
+            </p>
+            <div class="hero-cta">
+                <a href="/analyze" class="btn-primary">🚀 Scan an Email</a>
+                <a href="/history" class="btn-secondary">📋 View History</a>
+            </div>
+        </div>
+
+        <!-- Floating threat cards -->
+        <div class="floating-cards">
+            <div class="threat-card card-1">
+                <span class="threat-icon">⚠️</span>
+                <span class="threat-text">Urgency Language Detected</span>
+            </div>
+            <div class="threat-card card-2">
+                <span class="threat-icon">🔗</span>
+                <span class="threat-text">Malicious URL Flagged</span>
+            </div>
+            <div class="threat-card card-3">
+                <span class="threat-icon">👤</span>
+                <span class="threat-text">Sender Spoofing Found</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats-section">
+        <div class="stat-card">
+            <div class="stat-number">3.4B</div>
+            <div class="stat-label">Phishing emails sent daily</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">90%</div>
+            <div class="stat-label">Of breaches start with phishing</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">₹1.7T</div>
+            <div class="stat-label">Lost to cybercrime in India (2023)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">&lt;10s</div>
+            <div class="stat-label">Time to analyze with PhishGuard</div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-section">
+        <h2 class="section-title">How It Works</h2>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-num">01</div>
+                <div class="step-icon">📧</div>
+                <h3>Paste or Upload</h3>
+                <p>Paste the email text or upload a .eml file directly from your inbox.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">02</div>
+                <div class="step-icon">🤖</div>
+                <h3>AI Analyzes</h3>
+                <p>Gemini 2.5 Flash scans for phishing patterns, urgency cues, and spoofing tactics.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">03</div>
+                <div class="step-icon">🔗</div>
+                <h3>URLs Scanned</h3>
+                <p>Every link inside the email is checked against VirusTotal's threat database.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">04</div>
+                <div class="step-icon">📊</div>
+                <h3>Get Your Report</h3>
+                <p>Receive a risk score, red flag breakdown, and a clear action guide instantly.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>PhishGuard AI &nbsp;·&nbsp; Built with Gemini 2.5 Flash &nbsp;·&nbsp; Smartbridge Internship Project</p>
+    </footer>
+
+</body>
+
+</html>

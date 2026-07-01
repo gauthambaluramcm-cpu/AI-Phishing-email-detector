@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scan Results — PhishGuard AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="brand-icon">🛡️</span>
+            <span class="brand-name">PhishGuard <span class="brand-ai">AI</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/analyze" class="nav-link active">Analyze</a>
+            <a href="/history" class="nav-link">History</a>
+        </div>
+    </nav>
+
+    <section class="results-page-section">
+        <div class="analyzer-container">
+
+            <div class="analyzer-header">
+                <h1>📊 Scan Results</h1>
+                <p>AI-powered phishing analysis complete</p>
+            </div>
+
+            <!-- This page is used as a template reference -->
+            <!-- Actual results are rendered dynamically in analyze.html via main.js -->
+            <div class="result-redirect">
+                <p>Results are displayed on the <a href="/analyze">Analyze page</a> after scanning.</p>
+                <a href="/analyze" class="btn-primary">← Go Scan an Email</a>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>PhishGuard AI &nbsp;·&nbsp; Built with Gemini 2.5 Flash &nbsp;·&nbsp; Smartbridge Internship Project</p>
+    </footer>
+
+</body>
+
+</html>

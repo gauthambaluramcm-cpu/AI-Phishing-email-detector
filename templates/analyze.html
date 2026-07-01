@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analyze Email — PhishGuard AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="brand-icon">🛡️</span>
+            <span class="brand-name">PhishGuard <span class="brand-ai">AI</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/analyze" class="nav-link active">Analyze</a>
+            <a href="/history" class="nav-link">History</a>
+        </div>
+    </nav>
+
+    <!-- ANALYZER -->
+    <section class="analyzer-section">
+        <div class="analyzer-container">
+
+            <div class="analyzer-header">
+                <h1>🔍 Email Threat Analyzer</h1>
+                <p>Paste email content or upload a .eml file to begin scanning</p>
+            </div>
+
+            <!-- INPUT TABS -->
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('paste')">📋 Paste Email</button>
+                <button class="tab-btn" onclick="switchTab('upload')">📁 Upload .eml</button>
+            </div>
+
+            <form id="scanForm" enctype="multipart/form-data">
+
+                <!-- PASTE TAB -->
+                <div id="tab-paste" class="tab-content active">
+                    <textarea id="email_text" name="email_text" class="email-input" placeholder="Paste the full email here including headers, subject, sender, and body...
+
+Example:
+From: support@paypa1.com
+Subject: URGENT: Your account has been suspended!
+Dear Customer, Click here immediately to verify..." rows="14"></textarea>
+                </div>
+
+                <!-- UPLOAD TAB -->
+                <div id="tab-upload" class="tab-content">
+                    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('eml_file').click()">
+                        <div class="upload-icon">📁</div>
+                        <p class="upload-text">Click to upload or drag & drop your .eml file</p>
+                        <p class="upload-sub">Only .eml files supported</p>
+                        <input type="file" id="eml_file" name="eml_file" accept=".eml" hidden
+                            onchange="handleFileSelect(this)" />
+                    </div>
+                    <div id="file-selected" class="file-selected hidden">
+                        <span class="file-icon">📄</span>
+                        <span id="file-name"></span>
+                        <button type="button" onclick="clearFile()" class="clear-file">✕</button>
+                    </div>
+                </div>
+
+                <!-- SCAN BUTTON -->
+                <button type="button" onclick="startScan()" class="btn-scan" id="scanBtn">
+                    🚀 Scan for Phishing
+                </button>
+
+            </form>
+
+            <!-- LOADING -->
+            <div id="loading" class="loading hidden">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">
+                    <span id="loading-msg">Initializing AI analysis...</span>
+                </div>
+                <div class="loading-steps">
+                    <span id="ls1" class="ls">🤖 AI scanning email patterns</span>
+                    <span id="ls2" class="ls">🔗 Extracting & checking URLs</span>
+                    <span id="ls3" class="ls">📊 Generating risk report</span>
+                </div>
+            </div>
+
+            <!-- RESULTS -->
+            <div id="results" class="results hidden"></div>
+
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>PhishGuard AI &nbsp;·&nbsp; Built with Gemini 2.5 Flash &nbsp;·&nbsp; Smartbridge Internship Project</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

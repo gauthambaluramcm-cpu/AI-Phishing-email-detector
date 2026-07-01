@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scan History — PhishGuard AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="brand-icon">🛡️</span>
+            <span class="brand-name">PhishGuard <span class="brand-ai">AI</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/analyze" class="nav-link">Analyze</a>
+            <a href="/history" class="nav-link active">History</a>
+        </div>
+    </nav>
+
+    <section class="history-section">
+        <div class="analyzer-container">
+
+            <div class="analyzer-header">
+                <h1>📋 Scan History</h1>
+                <p>All previously analyzed emails — most recent first</p>
+            </div>
+
+            {% if scans %}
+            <div class="history-stats">
+                <div class="hstat">
+                    <span class="hstat-num">{{ scans|length }}</span>
+                    <span class="hstat-label">Total Scans</span>
+                </div>
+                <div class="hstat">
+                    <span class="hstat-num red">{{ scans|selectattr('risk_level','equalto','HIGH')|list|length }}</span>
+                    <span class="hstat-label">High Risk</span>
+                </div>
+                <div class="hstat">
+                    <span class="hstat-num yellow">{{ scans|selectattr('risk_level','equalto','MEDIUM')|list|length
+                        }}</span>
+                    <span class="hstat-label">Medium Risk</span>
+                </div>
+                <div class="hstat">
+                    <span class="hstat-num green">{{ scans|selectattr('risk_level','equalto','SAFE')|list|length
+                        }}</span>
+                    <span class="hstat-label">Safe</span>
+                </div>
+            </div>
+
+            <div class="history-table-wrap">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Email Preview</th>
+                            <th>Risk Level</th>
+                            <th>Score</th>
+                            <th>Red Flags</th>
+                            <th>URLs</th>
+                            <th>Action</th>
+                            <th>Scanned At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scan in scans %}
+                        <tr>
+                            <td class="mono">{{ loop.index }}</td>
+                            <td class="preview-cell">{{ scan.email_preview[:80] }}...</td>
+                            <td>
+                                <span class="badge badge-{{ scan.risk_level | lower }}">
+                                    {% if scan.risk_level == 'HIGH' %}🔴{% elif scan.risk_level == 'MEDIUM' %}🟡{% else
+                                    %}🟢{% endif %}
+                                    {{ scan.risk_level }}
+                                </span>
+                            </td>
+                            <td class="mono">
+                                <span
+                                    class="score-{{ 'high' if scan.risk_score >= 80 else ('medium' if scan.risk_score >= 40 else 'safe') }}">
+                                    {{ scan.risk_score }}/100
+                                </span>
+                            </td>
+                            <td class="mono">{{ scan.red_flag_count }}</td>
+                            <td class="mono">{{ scan.url_count }}</td>
+                            <td class="action-cell">{{ scan.action }}</td>
+                            <td class="mono time-cell">{{ scan.scanned_at[:16].replace('T', ' ') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+            <div class="empty-history">
+                <div class="empty-icon">📭</div>
+                <h3>No scans yet</h3>
+                <p>Start by analyzing a suspicious email</p>
+                <a href="/analyze" class="btn-primary">🚀 Scan First Email</a>
+            </div>
+            {% endif %}
+
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>PhishGuard AI &nbsp;·&nbsp; Built with Gemini 2.5 Flash &nbsp;·&nbsp; Smartbridge Internship Project</p>
+    </footer>
+
+</body>
+
+</html>
