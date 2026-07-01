@@ -1,12 +1,14 @@
-import google.generativeai as genai
+from openai import OpenAI
 import json
 import os
 import re
 
 
 def analyze_email(email_text: str) -> dict:
-    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    client = OpenAI(
+        api_key=os.getenv("OPENAI_API_KEY", "dummy-key"),
+        base_url=os.getenv("OPENAI_BASE_URL")
+    )
 
     prompt = f"""
 You are a cybersecurity expert specializing in phishing email detection.
@@ -50,8 +52,14 @@ Rules:
 - Return ONLY the JSON, nothing else
 """
 
-    response = model.generate_content(prompt)
-    raw = response.text.strip()
+    response = client.chat.completions.create(
+        model="gpt-oss-120b",
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.0
+    )
+    raw = response.choices[0].message.content.strip()
 
     # Strip markdown fences if present
     raw = re.sub(r'^```(?:json)?\s*', '', raw)

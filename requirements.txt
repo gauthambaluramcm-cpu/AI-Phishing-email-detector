@@ -1,5 +1,5 @@
 flask==3.0.3
-google-generativeai
+openai
 requests==2.32.3
 supabase>=2.4.0
 python-dotenv==1.0.1
