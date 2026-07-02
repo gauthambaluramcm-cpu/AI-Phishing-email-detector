@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "PhishGuard Live Analyzer",
+  "version": "1.0",
+  "description": "Analyze emails and web pages for phishing threats using AI.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://ai-phishing-email-detector-0962.onrender.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Analyze with PhishGuard"
+  }
+}

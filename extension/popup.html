@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard Analyzer</title>
+    <link rel="stylesheet" href="popup.css">
+    <!-- Using Google Fonts for a modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="glass-container">
+        <header>
+            <div class="header-content">
+                <div class="logo-group">
+                    <span class="shield-icon">🛡️</span>
+                    <div class="logo-text">
+                        <h1>PhishGuard</h1>
+                        <p class="subtitle">Live Email Analysis</p>
+                    </div>
+                </div>
+                <button id="settings-btn" class="icon-btn" title="Settings">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Settings Panel -->
+        <div id="settings-panel" class="hidden panel">
+            <h3>Settings</h3>
+            <div class="setting-item">
+                <label for="auto-scan-toggle">Auto-Scan on Open</label>
+                <label class="switch">
+                    <input type="checkbox" id="auto-scan-toggle">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <button id="close-settings-btn" class="secondary-btn">Close</button>
+        </div>
+
+        <main id="main-content">
+            <div class="action-section" id="action-section">
+                <button id="analyze-btn" class="primary-btn">Analyze Current Page</button>
+                <a href="https://ai-phishing-email-detector-0962.onrender.com" target="_blank" id="open-website-btn" class="website-btn">
+                    <span class="website-btn-icon">🌐</span>
+                    Open PhishGuard Website
+                    <span class="website-btn-arrow">↗</span>
+                </a>
+            </div>
+
+            <div id="loading" class="hidden">
+                <div class="spinner"></div>
+                <p>Analyzing content with AI...</p>
+            </div>
+
+            <div id="result-section" class="hidden">
+                <div class="risk-badge" id="risk-badge">
+                    <div class="risk-info">
+                        <span class="risk-title">THREAT LEVEL</span>
+                        <span id="risk-label">SAFE</span>
+                    </div>
+                    <div class="score-container">
+                        <svg class="circular-chart" viewBox="0 0 36 36">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="circle" id="score-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <span id="risk-score">0</span>
+                    </div>
+                </div>
+                
+                <div class="summary card">
+                    <p id="summary-text">...</p>
+                </div>
+
+                <!-- Accordions -->
+                <div class="accordions">
+                    
+                    <!-- Action Guide Accordion -->
+                    <div class="accordion-item" id="action-guide-container">
+                        <button class="accordion-header">
+                            <span class="icon">🚀</span> Next Steps: <strong id="primary-action">...</strong>
+                            <span class="arrow">▼</span>
+                        </button>
+                        <div class="accordion-content">
+                            <ul id="action-steps-list"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Red Flags Accordion -->
+                    <div class="accordion-item hidden" id="red-flags-container">
+                        <button class="accordion-header">
+                            <span class="icon">🚩</span> Red Flags Detected
+                            <span class="arrow">▼</span>
+                        </button>
+                        <div class="accordion-content">
+                            <ul id="red-flags-list"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Education Tip Accordion -->
+                    <div class="accordion-item" id="education-tip-container">
+                        <button class="accordion-header">
+                            <span class="icon">💡</span> Education Tip
+                            <span class="arrow">▼</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p id="education-text">...</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div id="error-section" class="hidden panel error-panel">
+                <span class="error-icon">⚠️</span>
+                <p id="error-message"></p>
+                <button id="retry-btn" class="secondary-btn mt-10">Try Again</button>
+            </div>
+        </main>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
