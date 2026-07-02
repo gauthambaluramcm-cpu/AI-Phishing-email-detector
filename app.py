@@ -89,7 +89,10 @@ def logout():
 # --- Google OAuth Routes ---
 @app.route("/auth/google")
 def google_login():
-    redirect_uri = url_for('google_callback', _external=True)
+    # Use APP_BASE_URL env var in production, fallback to 127.0.0.1 for local dev
+    base_url = os.getenv('APP_BASE_URL', 'http://127.0.0.1:5000')
+    redirect_uri = base_url.rstrip('/') + '/auth/google/callback'
+    print(f"[DEBUG] Google redirect_uri: {redirect_uri}")
     return google.authorize_redirect(redirect_uri)
 
 
