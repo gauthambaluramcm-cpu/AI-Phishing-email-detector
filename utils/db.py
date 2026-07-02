@@ -10,6 +10,51 @@ def get_client() -> Client:
     return create_client(url, key)
 
 
+def upsert_google_user(google_id: str, email: str, name: str = None):
+    """Create or fetch a user authenticated via Google OAuth."""
+    try:
+        client = get_client()
+
+        # Check if user already exists by google_id
+        existing = client.table("app_users").select("*").eq("google_id", google_id).execute()
+        if existing.data:
+            user_data = existing.data[0]
+        else:
+            # Check if email already registered (email/password account)
+            existing_email = client.table("app_users").select("*").eq("email", email).execute()
+            if existing_email.data:
+                # Link google_id to existing email account
+                user_data = existing_email.data[0]
+                client.table("app_users").update({"google_id": google_id}).eq("id", user_data["id"]).execute()
+            else:
+                # Create new user
+                record = {
+                    "email": email,
+                    "google_id": google_id,
+                    "password_hash": None,
+                }
+                if name:
+                    record["name"] = name
+                response = client.table("app_users").insert(record).execute()
+                if not response.data:
+                    return None, "Failed to create user"
+                user_data = response.data[0]
+
+        class DummyUser:
+            def __init__(self, uid, uemail):
+                self.id = uid
+                self.email = uemail
+
+        class DummyRes:
+            def __init__(self, user):
+                self.user = user
+
+        return DummyRes(DummyUser(user_data["id"], user_data["email"])), None
+
+    except Exception as e:
+        print(f"Google upsert error: {e}")
+        return None, str(e)
+
 def sign_up_user(email: str, password: str):
     try:
         client = get_client()

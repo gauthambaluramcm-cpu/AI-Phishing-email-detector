@@ -2,15 +2,26 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from functools import wraps
 from dotenv import load_dotenv
 import os
+from authlib.integrations.flask_client import OAuth
 
 from utils.ai_analyzer import analyze_email, extract_eml_content
 from utils.url_scanner import scan_urls
-from utils.db import save_scan, get_scan_history, sign_up_user, sign_in_user
+from utils.db import save_scan, get_scan_history, sign_up_user, sign_in_user, upsert_google_user
 
 load_dotenv(override=True)
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "phishguard-super-secret-key-2024")
+
+# --- Google OAuth Setup ---
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id=os.getenv('GOOGLE_CLIENT_ID'),
+    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'},
+)
 
 # --- Auth Decorator ---
 def login_required(f):
@@ -73,6 +84,37 @@ def login_page():
 def logout():
     session.clear()
     return redirect(url_for('index'))
+
+
+# --- Google OAuth Routes ---
+@app.route("/auth/google")
+def google_login():
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@app.route("/auth/google/callback")
+def google_callback():
+    try:
+        token = google.authorize_access_token()
+        user_info = token.get('userinfo')
+        if not user_info:
+            return redirect(url_for('login_page') + '?error=Google+login+failed')
+
+        google_id = user_info['sub']
+        email = user_info['email']
+        name = user_info.get('name', '')
+
+        res, err = upsert_google_user(google_id, email, name)
+        if res and res.user:
+            session['user_id'] = res.user.id
+            session['email'] = res.user.email
+            return redirect(url_for('dashboard_page'))
+        else:
+            return render_template('login.html', error=f'Google login failed: {err}')
+    except Exception as e:
+        print(f'Google callback error: {e}')
+        return render_template('login.html', error='Google login failed. Please try again.')
 
 @app.route("/dashboard")
 @login_required
