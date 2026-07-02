@@ -89,8 +89,7 @@ def logout():
 # --- Google OAuth Routes ---
 @app.route("/auth/google")
 def google_login():
-    # Use APP_BASE_URL env var in production, fallback to 127.0.0.1 for local dev
-    base_url = os.getenv('APP_BASE_URL', 'http://127.0.0.1:5000')
+    base_url = os.getenv('APP_BASE_URL', 'http://localhost:5000')
     redirect_uri = base_url.rstrip('/') + '/auth/google/callback'
     print(f"[DEBUG] Google redirect_uri: {redirect_uri}")
     return google.authorize_redirect(redirect_uri)
@@ -99,10 +98,12 @@ def google_login():
 @app.route("/auth/google/callback")
 def google_callback():
     try:
+        base_url = os.getenv('APP_BASE_URL', 'http://localhost:5000')
+        redirect_uri = base_url.rstrip('/') + '/auth/google/callback'
         token = google.authorize_access_token()
         user_info = token.get('userinfo')
         if not user_info:
-            return redirect(url_for('login_page') + '?error=Google+login+failed')
+            return render_template('login.html', error='Google login failed: no user info returned')
 
         google_id = user_info['sub']
         email = user_info['email']
@@ -117,7 +118,7 @@ def google_callback():
             return render_template('login.html', error=f'Google login failed: {err}')
     except Exception as e:
         print(f'Google callback error: {e}')
-        return render_template('login.html', error='Google login failed. Please try again.')
+        return render_template('login.html', error=f'Google login failed: {str(e)}')
 
 @app.route("/dashboard")
 @login_required
