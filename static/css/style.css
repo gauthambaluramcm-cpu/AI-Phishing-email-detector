@@ -21,9 +21,9 @@
     --yellow: #ffcc00;
     --yellow-dim: #cc9900;
     --blue: #00aaff;
-    --text-primary: #e8f0ff;
-    --text-secondary: #8899bb;
-    --text-muted: #445577;
+    --text-primary: #f8faff;
+    --text-secondary: #b5c7e8;
+    --text-muted: #8298ba;
     --mono: 'Share Tech Mono', monospace;
     --sans: 'Inter', sans-serif;
 }
@@ -37,6 +37,7 @@ body {
     background: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
+    font-size: 1.08rem;
 }
 
 a {
@@ -287,7 +288,8 @@ a {
 /* ── How it works ─────────────────────────────────────────────────────────── */
 .how-section {
     padding: 5rem 2rem;
-    max-width: 1100px;
+    max-width: 1400px;
+    width: 95%;
     margin: 0 auto;
 }
 
@@ -350,7 +352,8 @@ a {
 }
 
 .analyzer-container {
-    max-width: 860px;
+    max-width: 1400px;
+    width: 95%;
     margin: 0 auto;
 }
 
