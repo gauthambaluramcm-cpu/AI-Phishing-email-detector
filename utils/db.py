@@ -31,10 +31,7 @@ def upsert_google_user(google_id: str, email: str, name: str = None):
                 record = {
                     "email": email,
                     "google_id": google_id,
-                    "password_hash": None,
                 }
-                if name:
-                    record["name"] = name
                 response = client.table("app_users").insert(record).execute()
                 if not response.data:
                     return None, "Failed to create user"
