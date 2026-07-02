@@ -2,55 +2,57 @@ from openai import OpenAI
 import json
 import os
 import re
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def analyze_email(email_text: str) -> dict:
     client = OpenAI(
-        api_key=os.getenv("OPENAI_API_KEY", "dummy-key"),
+        api_key=os.getenv("OPENAI_API_KEY"),
         base_url=os.getenv("OPENAI_BASE_URL")
     )
 
     prompt = f"""
-You are a cybersecurity expert specializing in phishing email detection.
-Analyze the following email and return ONLY a valid JSON object — no markdown, no backticks, no explanation.
+                You are a cybersecurity expert specializing in phishing email detection.
+                Analyze the following email and return ONLY a valid JSON object — no markdown, no backticks, no explanation.
 
-Email to analyze:
----
-{email_text}
----
-
-Return this exact JSON structure:
-{{
-  "risk_level": "HIGH" | "MEDIUM" | "SAFE",
-  "risk_score": <integer 0-100>,
-  "summary": "<2-3 sentence plain-English verdict>",
-  "red_flags": [
+                Email to analyze:
+    ---
+    {email_text}
+    ---
+    
+    Return this exact JSON structure:
     {{
-      "category": "<e.g. Urgency Language / Sender Spoofing / Suspicious Link / Impersonation / Grammar Issues>",
-      "detail": "<specific explanation of what was found>",
-      "severity": "HIGH" | "MEDIUM" | "LOW"
+      "risk_level": "HIGH" | "MEDIUM" | "SAFE",
+      "risk_score": <integer 0-100>,
+      "summary": "<2-3 sentence plain-English verdict>",
+      "red_flags": [
+        {{
+          "category": "<e.g. Urgency Language / Sender Spoofing / Suspicious Link / Impersonation / Grammar Issues>",
+          "detail": "<specific explanation of what was found>",
+          "severity": "HIGH" | "MEDIUM" | "LOW"
+        }}
+      ],
+      "urls_found": ["<url1>", "<url2>"],
+      "action_guide": {{
+        "primary_action": "<Delete Immediately / Report to IT / Verify Before Acting / Safe to Proceed>",
+        "steps": [
+          "<step 1>",
+          "<step 2>",
+          "<step 3>"
+        ]
+      }},
+      "legitimate_elements": ["<any element that could fool users>"],
+      "education_tip": "<one key cybersecurity lesson from this email>"
     }}
-  ],
-  "urls_found": ["<url1>", "<url2>"],
-  "action_guide": {{
-    "primary_action": "<Delete Immediately / Report to IT / Verify Before Acting / Safe to Proceed>",
-    "steps": [
-      "<step 1>",
-      "<step 2>",
-      "<step 3>"
-    ]
-  }},
-  "legitimate_elements": ["<any element that could fool users>"],
-  "education_tip": "<one key cybersecurity lesson from this email>"
-}}
-
-Rules:
-- risk_score 80-100 = HIGH, 40-79 = MEDIUM, 0-39 = SAFE
-- Be specific about red flags, reference actual text from the email
-- URLs found should be raw URLs extracted from the email body
-- If no red flags found, return empty array and SAFE rating
-- Return ONLY the JSON, nothing else
-"""
+    
+    Rules:
+    - risk_score 80-100 = HIGH, 40-79 = MEDIUM, 0-39 = SAFE
+    - Be specific about red flags, reference actual text from the email
+    - URLs found should be raw URLs extracted from the email body
+    - If no red flags found, return empty array and SAFE rating
+    - Return ONLY the JSON, nothing else
+    """
 
     response = client.chat.completions.create(
         model="gpt-oss-120b",

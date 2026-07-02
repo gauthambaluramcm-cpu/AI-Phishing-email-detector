@@ -135,7 +135,7 @@ async function startScan() {
             return;
         }
 
-        renderResults(data.analysis, data.url_results);
+        renderResults(data.analysis, data.url_results, data.is_logged_in);
 
     } catch (err) {
         stopLoadingAnimation();
@@ -147,7 +147,7 @@ async function startScan() {
 }
 
 // ── Render Results ────────────────────────────────────────────────────────
-function renderResults(analysis, urlResults) {
+function renderResults(analysis, urlResults, isLoggedIn) {
     const container = document.getElementById('results');
     container.classList.remove('hidden');
 
@@ -176,8 +176,11 @@ function renderResults(analysis, urlResults) {
         <div class="risk-level-text">${riskMsg}</div>
       </div>
       <div class="risk-score-wrap">
+        <svg class="score-circular-chart" viewBox="0 0 36 36">
+            <path class="score-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <path class="score-circle" id="result-score-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+        </svg>
         <div class="risk-score-num">${score}</div>
-        <div class="risk-score-label">/ 100 Risk Score</div>
       </div>
     </div>
 
@@ -264,14 +267,38 @@ function renderResults(analysis, urlResults) {
       <div class="edu-tip">💡 ${eduTip}</div>
     </div>`;
     }
-
+    
+    // Action Buttons
+    html += `<div style="display: flex; gap: 1rem; margin-top: 1rem;">`;
+    
     // Scan again
-    html += `<button class="btn-scan-again" onclick="resetScan()">
+    html += `<button class="btn-scan-again" style="flex: 1;" onclick="resetScan()">
     🔄 Scan Another Email
   </button>`;
+  
+    // Export Report (Premium feature)
+    if (isLoggedIn) {
+        // Store analysis data globally for the export function
+        window.currentAnalysisData = { analysis, urlResults };
+        html += `<button class="btn-scan-again" style="flex: 1; background: var(--blue); color: white;" onclick="exportReport()">
+        📥 Export Report (Premium)
+      </button>`;
+    } else {
+        html += `<a href="/login" class="btn-scan-again" style="flex: 1; text-align: center; background: rgba(255,255,255,0.05); text-decoration: none; display: flex; align-items: center; justify-content: center;">
+        🔒 Login to Export
+      </a>`;
+    }
+    
+    html += `</div>`;
 
     container.innerHTML = html;
     container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // Animate circle
+    setTimeout(() => {
+        const circle = document.getElementById('result-score-circle');
+        if (circle) circle.setAttribute('stroke-dasharray', `${score}, 100`);
+    }, 100);
 }
 
 // ── Error Display ─────────────────────────────────────────────────────────
@@ -287,6 +314,41 @@ function showError(message) {
   `;
 }
 
+// ── Export Report ─────────────────────────────────────────────────────────
+function exportReport() {
+    const data = window.currentAnalysisData;
+    if (!data) return;
+    
+    const { analysis, urlResults } = data;
+    
+    let report = `=== PHISHGUARD AI REPORT ===\n\n`;
+    report += `Threat Level: ${analysis.risk_level}\n`;
+    report += `Risk Score: ${analysis.risk_score}/100\n\n`;
+    
+    report += `[SUMMARY]\n${analysis.summary}\n\n`;
+    
+    report += `[RED FLAGS]\n`;
+    if (analysis.red_flags && analysis.red_flags.length > 0) {
+        analysis.red_flags.forEach(f => {
+            report += `- [${f.severity}] ${f.category}: ${f.detail}\n`;
+        });
+    } else {
+        report += `None detected.\n`;
+    }
+    
+    report += `\n[ACTION GUIDE]\n👉 ${analysis.action_guide?.primary_action || 'Proceed with caution'}\n`;
+    (analysis.action_guide?.steps || []).forEach(s => report += `- ${s}\n`);
+    
+    // Download logic
+    const blob = new Blob([report], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `PhishGuard_Report_${new Date().getTime()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
 // ── Reset ─────────────────────────────────────────────────────────────────
 function resetScan() {
     document.getElementById('results').classList.add('hidden');
@@ -294,4 +356,38 @@ function resetScan() {
     document.getElementById('email_text').value = '';
     clearFile();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Initialization & Quick Scan ───────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            once: true,
+            offset: 50,
+            duration: 600
+        });
+    }
+
+    // Check if we arrived from a Quick Scan on the home page
+    const quickScanText = localStorage.getItem('quickScanText');
+    if (quickScanText && window.location.pathname === '/analyze') {
+        const emailInput = document.getElementById('email_text');
+        if (emailInput) {
+            emailInput.value = quickScanText;
+            localStorage.removeItem('quickScanText');
+            
+            // Auto start scan after a brief moment to let animations finish
+            setTimeout(() => {
+                if(typeof startScan === 'function') startScan();
+            }, 600);
+        }
+    }
+});
+
+function submitQuickScan() {
+    const input = document.getElementById('quick-scan-input');
+    if (input && input.value.trim().length > 0) {
+        localStorage.setItem('quickScanText', input.value.trim());
+        window.location.href = '/analyze';
+    }
 }

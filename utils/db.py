@@ -1,6 +1,7 @@
 import os
 from supabase import create_client, Client
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 def get_client() -> Client:
@@ -9,9 +10,75 @@ def get_client() -> Client:
     return create_client(url, key)
 
 
+def sign_up_user(email: str, password: str):
+    try:
+        client = get_client()
+        
+        # Check if user already exists
+        existing = client.table("app_users").select("id").eq("email", email).execute()
+        if existing.data:
+            return None, "User with this email already exists"
+            
+        hashed_pw = generate_password_hash(password)
+        
+        record = {
+            "email": email,
+            "password_hash": hashed_pw
+        }
+        
+        response = client.table("app_users").insert(record).execute()
+        if not response.data:
+            return None, "Failed to create user"
+            
+        user_data = response.data[0]
+        
+        class DummyUser:
+            def __init__(self, uid, uemail):
+                self.id = uid
+                self.email = uemail
+        class DummyRes:
+            def __init__(self, user):
+                self.user = user
+                
+        return DummyRes(DummyUser(user_data['id'], user_data['email'])), None
+        
+    except Exception as e:
+        print(f"Sign up error: {e}")
+        return None, str(e)
+
+
+def sign_in_user(email: str, password: str):
+    try:
+        client = get_client()
+        
+        response = client.table("app_users").select("*").eq("email", email).execute()
+        
+        if not response.data:
+            return None, "Invalid login credentials"
+            
+        user_data = response.data[0]
+        
+        if not check_password_hash(user_data['password_hash'], password):
+            return None, "Invalid login credentials"
+            
+        class DummyUser:
+            def __init__(self, uid, uemail):
+                self.id = uid
+                self.email = uemail
+        class DummyRes:
+            def __init__(self, user):
+                self.user = user
+                
+        return DummyRes(DummyUser(user_data['id'], user_data['email'])), None
+        
+    except Exception as e:
+        print(f"Sign in error: {e}")
+        return None, str(e)
+
+
 def save_scan(email_preview: str, risk_level: str, risk_score: int,
               summary: str, red_flags: list, url_results: list,
-              action: str) -> dict:
+              action: str, user_id: str = None) -> dict:
     try:
         client = get_client()
         record = {
@@ -24,6 +91,9 @@ def save_scan(email_preview: str, risk_level: str, risk_score: int,
             "action": action,
             "scanned_at": datetime.utcnow().isoformat()
         }
+        if user_id:
+            record["user_id"] = user_id
+
         response = client.table("phishing_scans").insert(record).execute()
         return response.data[0] if response.data else {}
     except Exception as e:
@@ -31,16 +101,14 @@ def save_scan(email_preview: str, risk_level: str, risk_score: int,
         return {}
 
 
-def get_scan_history(limit: int = 20) -> list:
+def get_scan_history(user_id: str = None, limit: int = 20) -> list:
     try:
         client = get_client()
-        response = (
-            client.table("phishing_scans")
-            .select("*")
-            .order("scanned_at", desc=True)
-            .limit(limit)
-            .execute()
-        )
+        query = client.table("phishing_scans").select("*")
+        if user_id:
+            query = query.eq("user_id", user_id)
+
+        response = query.order("scanned_at", desc=True).limit(limit).execute()
         return response.data or []
     except Exception as e:
         print(f"DB fetch error: {e}")

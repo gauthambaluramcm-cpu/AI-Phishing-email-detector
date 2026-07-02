@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal Dashboard — PhishGuard AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-bright);
+        }
+        .welcome-text h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #ffffff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .welcome-text p {
+            color: var(--text-secondary);
+            font-family: var(--mono);
+        }
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 8px 16px;
+            border-radius: 99px;
+            font-weight: 600;
+        }
+        .profile-icon {
+            font-size: 1.5rem;
+        }
+        .logout-link {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-decoration: underline;
+            margin-left: 10px;
+        }
+        .logout-link:hover { color: var(--red); }
+        
+        /* Glass Stats */
+        .glass-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .glass-stat-card {
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-bright);
+            border-radius: 16px;
+            padding: 1.8rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .glass-stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-color: var(--green);
+        }
+        .glass-stat-card.red-glow:hover { border-color: var(--red); box-shadow: 0 10px 30px rgba(255,59,59,0.15); }
+        .glass-stat-card.yellow-glow:hover { border-color: var(--yellow); box-shadow: 0 10px 30px rgba(255,204,0,0.15); }
+        
+        .stat-icon {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 5rem;
+            opacity: 0.05;
+        }
+        .glass-stat-num {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: var(--mono);
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        .glass-stat-num.safe { color: var(--green); }
+        .glass-stat-num.danger { color: var(--red); }
+        .glass-stat-num.warn { color: var(--yellow); }
+        
+        .glass-stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Table enhancements */
+        .history-table-wrap {
+            background: rgba(17, 24, 39, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-bright);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .history-table th {
+            background: rgba(0,0,0,0.2);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+        .history-table tr:hover {
+            background: rgba(255,255,255,0.03);
+        }
+        
+        @media (max-width: 900px) {
+            .glass-stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .dashboard-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar" data-aos="fade-down">
+        <div class="nav-brand">
+            <span class="brand-icon">🛡️</span>
+            <span class="brand-name">PhishGuard <span class="brand-ai">AI</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/analyze" class="nav-link">Analyze</a>
+            <a href="/dashboard" class="nav-link active">Dashboard</a>
+        </div>
+    </nav>
+
+    <section class="history-section">
+        <div class="analyzer-container" style="max-width: 1000px;">
+
+            <div class="dashboard-header" data-aos="fade-in">
+                <div class="welcome-text">
+                    <h1>Your Analytics Dashboard</h1>
+                    <p>Track, review, and export your personal email scans.</p>
+                </div>
+                <div class="profile-badge">
+                    <span class="profile-icon">👤</span>
+                    <span>{{ session.get('email', 'User') }}</span>
+                    <a href="/logout" class="logout-link">Logout</a>
+                </div>
+            </div>
+
+            <div class="glass-stats-grid">
+                <div class="glass-stat-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-icon">🛡️</div>
+                    <div class="glass-stat-num">{{ stats.total }}</div>
+                    <div class="glass-stat-label">Total Scans</div>
+                </div>
+                <div class="glass-stat-card safe-glow" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-icon">✅</div>
+                    <div class="glass-stat-num safe">{{ stats.safe }}</div>
+                    <div class="glass-stat-label">Safe Emails</div>
+                </div>
+                <div class="glass-stat-card yellow-glow" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="glass-stat-num warn">{{ stats.total - stats.high_risk - stats.safe }}</div>
+                    <div class="glass-stat-label">Suspicious</div>
+                </div>
+                <div class="glass-stat-card red-glow" data-aos="fade-up" data-aos-delay="400">
+                    <div class="stat-icon">🚨</div>
+                    <div class="glass-stat-num danger">{{ stats.high_risk }}</div>
+                    <div class="glass-stat-label">Threats Blocked</div>
+                </div>
+            </div>
+
+            {% if scans %}
+            <div class="history-table-wrap" data-aos="zoom-in" data-aos-delay="500">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Email Preview</th>
+                            <th>Threat Level</th>
+                            <th>Score</th>
+                            <th>Flags</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scan in scans %}
+                        <tr>
+                            <td class="mono">{{ loop.index }}</td>
+                            <td class="preview-cell">{{ scan.email_preview[:60] }}...</td>
+                            <td>
+                                <span class="badge badge-{{ scan.risk_level | lower }}">
+                                    {% if scan.risk_level == 'HIGH' %}🔴{% elif scan.risk_level == 'MEDIUM' %}🟡{% else
+                                    %}🟢{% endif %}
+                                    {{ scan.risk_level }}
+                                </span>
+                            </td>
+                            <td class="mono">
+                                <span
+                                    class="score-{{ 'high' if scan.risk_score >= 80 else ('medium' if scan.risk_score >= 40 else 'safe') }}">
+                                    {{ scan.risk_score }}/100
+                                </span>
+                            </td>
+                            <td class="mono">🚩 {{ scan.red_flag_count }}</td>
+                            <td class="mono time-cell">{{ scan.scanned_at[:10] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+            <div class="empty-history" data-aos="fade-up" data-aos-delay="200">
+                <div class="empty-icon">📭</div>
+                <h3>No scans yet</h3>
+                <p>Protect yourself by scanning your first suspicious email!</p>
+                <a href="/analyze" class="btn-primary" style="margin-top:1rem;">🚀 Go to Analyzer</a>
+            </div>
+            {% endif %}
+
+        </div>
+    </section>
+
+    <footer class="footer" data-aos="fade-in">
+        <p>PhishGuard AI &nbsp;·&nbsp; Built with Advanced AI &nbsp;·&nbsp; Smartbridge Internship Project</p>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>AOS.init({ once: true });</script>
+</body>
+
+</html>

@@ -8,12 +8,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap"
         rel="stylesheet" />
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 
 <body>
 
     <!-- NAV -->
-    <nav class="navbar">
+    <nav class="navbar" data-aos="fade-down">
         <div class="nav-brand">
             <span class="brand-icon">🛡️</span>
             <span class="brand-name">PhishGuard <span class="brand-ai">AI</span></span>
@@ -21,13 +23,17 @@
         <div class="nav-links">
             <a href="/" class="nav-link">Home</a>
             <a href="/analyze" class="nav-link active">Analyze</a>
-            <a href="/history" class="nav-link">History</a>
+            {% if session.get('user_id') %}
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+            {% else %}
+            <a href="/login" class="nav-link">Login</a>
+            {% endif %}
         </div>
     </nav>
 
     <!-- ANALYZER -->
     <section class="analyzer-section">
-        <div class="analyzer-container">
+        <div class="analyzer-container" data-aos="zoom-in" data-aos-duration="600">
 
             <div class="analyzer-header">
                 <h1>🔍 Email Threat Analyzer</h1>
@@ -89,15 +95,19 @@ Dear Customer, Click here immediately to verify..." rows="14"></textarea>
             </div>
 
             <!-- RESULTS -->
-            <div id="results" class="results hidden"></div>
+            <div id="results" class="results hidden">
+                <!-- Results will be injected here by main.js -->
+            </div>
 
         </div>
     </section>
 
-    <footer class="footer">
-        <p>PhishGuard AI &nbsp;·&nbsp; Built with Gemini 2.5 Flash &nbsp;·&nbsp; Smartbridge Internship Project</p>
+    <footer class="footer" data-aos="fade-in" data-aos-delay="300">
+        <p>PhishGuard AI &nbsp;·&nbsp; Built with Advanced AI &nbsp;·&nbsp; Smartbridge Internship Project</p>
     </footer>
 
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 
